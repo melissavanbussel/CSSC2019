@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Time Series Interpolation Algorithms:</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Melissa Van Bussel" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Time Series Interpolation Algorithms:
+## An Application to Real-World Data
+### Melissa Van Bussel
+### Trent University
+### Canadian Statistics Student Conference, <br/>May 25th, 2019
+
+---
+
+
+
+
+# Recall... 
+
+A **time series** is a sequence of observations, `\(\{X_t\}\)`, one taken at each time `\(t\)`, and arranged in chronological order. 
+
+
+
+&lt;center&gt;&lt;img src="airline.svg" height="350" width="700"/&gt;&lt;/center&gt;
+
+There are many methods available for modelling time series...
+
+---
+
+# Missing Observations 
+
+...however, most methods require that the series is **contiguous** (no missing observations). 
+
+
+
+&lt;center&gt;&lt;img src="mintemp.svg" height=350 width="700"/&gt;&lt;/center&gt;
+
+Thus, missing observations must be **imputed** (interpolated). 
+
+---
+
+background-image: url(lightning.jpg)
+background-size: 300px
+background-position: 78% 18%
+
+# Why?
+
+There are a number of reasons why a time series might have missing observations. 
+
+- Weekends or holidays
+
+- Equipment failure
+
+- Environmental constraints 
+
+- Transcription errors or incorrect data
+
+&lt;/br&gt;
+
+&lt;center&gt;&lt;img src="typing.jpg" width="700"/&gt;&lt;/center&gt;
+
+---
+
+# Goals of the Project
+
+Project completed for an undergraduate course, MATH4800H
+
+- Research a variety of time series interpolation algorithms
+
+--
+
+- Evaluate their performances on a number of real-world datasets
+
+--
+
+- Use multiple performance criteria 
+
+
+
+--
+
+
+```r
+head(algorithm_names, n = 12)
+```
+
+```
+##  [1] "Nearest Neighbor"                 
+##  [2] "Linear Interpolation"             
+##  [3] "Natural Cubic Spline"             
+##  [4] "FMM Cubic Spline"                 
+##  [5] "Hermite Cubic Spline"             
+##  [6] "Stineman Interpolation"           
+##  [7] "Kalman - ARIMA"                   
+##  [8] "Kalman - StructTS"                
+##  [9] "Last Observation Carried Forward" 
+## [10] "Next Observation Carried Backward"
+## [11] "Simple Moving Average"            
+## [12] "Linear Weighted Moving Average"
+```
+
+---
+class: inverse, center, middle
+
+# Datasets Used
+
+---
+
+# What kind of data were used?
+
+- All time series used were real-world datasets (**not** simulated data)
+
+- Non-stationary series
+
+- Desirable to use series of varying length and spacing between observations 
+
+- Some of these will likely be familiar to some of you
+
+&lt;/br&gt;&lt;/br&gt;
+
+&lt;center&gt;&lt;img src="temperature.jpg" height="200"/&gt;&lt;img src="sunspots.jpg" height="200"/&gt;&lt;/center&gt;
+
+---
+
+# First Dataset
+
+- Daily measurements of temperature (in Fahrenheit) in New York, May to September of 1973
+
+- (The `temperature` variable from the `airquality` dataset in `R`)
+
+
+
+&lt;/br&gt; &lt;/br&gt;
+&lt;center&gt;&lt;img src="airquality.svg" width="700"/&gt;&lt;/center&gt;
+
+---
+
+# Second Dataset 
+
+- Monthly mean relative sunspot numbers from 1749 to 1983 
+
+- (The `sunspots` dataset in `R`)
+
+
+
+&lt;/br&gt; &lt;/br&gt;
+&lt;center&gt;&lt;img src="sunspots.svg" width="700"/&gt;&lt;/center&gt;
+
+---
+
+# Third Dataset 
+
+- Daily noon solar flux measurements from Penticton, British Columbia
+
+- (The `PentOrig` variable from the `flux` dataset in the `tsinterp` package in  `R`)
+
+
+
+&lt;/br&gt;
+&lt;center&gt;&lt;img src="flux.svg" width="700"/&gt;&lt;/center&gt;
+
+---
+class: inverse, center, middle
+
+# The Experiment
+
+---
+# What was done? 
+
+Wrote an `R` script to do the following: 
+
+- Randomly impose gaps on each of the datasets (5%, 10%, 15%, 20%, 25%)
+
+- Use 18 different interpolation algorithms to fill in the gaps
+
+  - Including algorithms from the `R` packages `zoo`, `forecast`, `imputeTS`, and `tsinterp`
+
+- Evaluate the performance of each algorithm using 17 different performance criteria
+
+- Create tables summarizing the algorithms which performed the best and the worst (for each gap level, dataset, and performance criteria)
+
+---
+# Results
+
+- There wasn't one overall "winner", but in most cases, the best performing algorithms were: 
+  - Exponential Weighted Moving Averages
+  - Kalman Filters
+  - Cubic Splines
+
+- The algorithms which performed well performed **very** well, and very comparably. For example: a subset of the 20% gap level results for `\(r\)`:  
+
+&lt;table class="table table-striped table-condensed" style="font-size: 16px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;font-weight: bold;color: white !important;background-color: #316c77 !important;"&gt; algorithm &lt;/th&gt;
+   &lt;th style="text-align:center;font-weight: bold;color: white !important;background-color: #316c77 !important;"&gt; airquality &lt;/th&gt;
+   &lt;th style="text-align:center;font-weight: bold;color: white !important;background-color: #316c77 !important;"&gt; sunspots &lt;/th&gt;
+   &lt;th style="text-align:center;font-weight: bold;color: white !important;background-color: #316c77 !important;"&gt; flux &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 17em; font-weight: bold;"&gt; Natural Cubic Spline &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style=" font-weight: bold;    color: #32c140 !important;"&gt;0.98159651&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style=" font-weight: bold;    color: #e5675b !important;"&gt;0.98503122&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.99901174&lt;/span&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 17em; font-weight: bold;"&gt; FMM Cubic Spline &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.98039913&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.98503142&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.99901174&lt;/span&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 17em; font-weight: bold;"&gt; Hermite Cubic Spline &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.97911815&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.9880365&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.99921698&lt;/span&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 17em; font-weight: bold;"&gt; Kalman - ARIMA &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.97012021&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style=" font-weight: bold;    color: #32c140 !important;"&gt;0.99059037&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style=" font-weight: bold;    color: #32c140 !important;"&gt;0.99927336&lt;/span&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 17em; font-weight: bold;"&gt; Kalman - StructTS &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.97049236&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.99048929&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.99927209&lt;/span&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 17em; font-weight: bold;"&gt; Linear Weighted MA &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.96826562&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.99011662&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style=" font-weight: bold;    color: #e5675b !important;"&gt;0.99834509&lt;/span&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 17em; font-weight: bold;"&gt; Exponential Weighted MA &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.97064295&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.99033871&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.99878023&lt;/span&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 17em; font-weight: bold;"&gt; Hybrid Wiener Interpolator &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style=" font-weight: bold;    color: #e5675b !important;"&gt;0.96461487&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.98974162&lt;/span&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;width: 6em; "&gt; &lt;span style="     color: #316c77 !important;"&gt;0.99856881&lt;/span&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+# Next Steps 
+
+- Expand analysis to include more datasets
+  
+  - Will require a significant increase in computational power
+
+- Experiment with varying gap lengths and gap selection methods 
+
+- Include datasets from a wide variety of fields
+
+- Create recommendations for which algorithm to use based on the type of data 
+
+&lt;/br&gt; 
+
+**Want to learn more? Check out Sophie Castel's presentation on Monday!**
+
+&lt;center&gt;&lt;img src="sophie.jpg" width="700"/&gt;&lt;/center&gt;
+
+---
+# References
+
+1. Mathieu Lepot, Jean-Baptiste Aubin, and Francois H.L.R. Clemens. Interpolation in Time Series: An Introductive Overview of Existing Methods, Their Performance and Uncertainty Assessment. Water 2017, 9(10), 796.
+
+2. Wesley S. Burr. Air Pollution and Health: Time Series Tools and Analysis. Queen's University, PhD thesis. 2012.
+
+3. Wesley S. Burr (2012). `tsinterp`: A Time Series Interpolation Package for `R`. R Package.
+
+---
+
+# Thank You
+
+&lt;img style="position:absolute; top:140px; left:50px;" src="email.png" width="100"/&gt; &lt;a style="color:black; text-decoration:none; position:absolute; top:160px; left:200px; font-size:32px; font-weight:bold;" href="mailto:melissavanbussel@trentu.ca"&gt; melissavanbussel@trentu.ca&lt;/a&gt;
+
+&lt;img style="position:absolute; top:290px; left:50px;" src="linkedin.png" width="100"/&gt; &lt;a style="color:black; text-decoration:none; position:absolute; top:310px; left:200px; font-size:32px; font-weight:bold;" href="https://www.linkedin.com/in/melissavanbussel"&gt;linkedin.com/in/melissavanbussel&lt;/a&gt;
+
+&lt;img style="position:absolute; top:440px; left:50px;" src="github.png" width="100"/&gt; &lt;a style="color:black; text-decoration:none; position:absolute; top:460px; left:200px; font-size:32px; font-weight:bold;" href="https://www.github.com/melissavanbussel"&gt;github.com/melissavanbussel&lt;/a&gt;
+
+&lt;p style="position:absolute; top:560px; left:50px;"&gt;
+Slides created via the R package &lt;a href="https://github.com/yihui/xaringan"&gt;xaringan&lt;/a&gt;. Slides and accompanying files are available on &lt;a href="https://github.com/melissavanbussel"&gt;GitHub&lt;/a&gt;.
+&lt;/p&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
